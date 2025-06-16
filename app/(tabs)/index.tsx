@@ -1,75 +1,142 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import Loading from '@/components/Loading';
+import PropertyCard from '@/components/PropertyCard';
+import ScreenWrapper from '@/components/ScreenWrapper';
+import Typo from '@/components/Typo';
+import { colors, spacingX, spacingY } from '@/constants/theme';
+import { useProfile, useProperties } from '@/hooks/useProperties'; // adjust path as needed
+import { verticalScale } from '@/utils/styling';
+import * as Icons from 'phosphor-react-native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+const Home = () => {
+  const { data, isLoading, error } = useProperties();
+  const { data: profile} = useProfile();
 
-export default function HomeScreen() {
+  const [search, setSearch] = useState('');
+  const [searchFlag, setSearchFlag] = useState(false);
+  const [filtered, setFiltered] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (data) setFiltered(data);
+  }, [data]);
+
+  if (isLoading) return <Loading />;
+  if (error) return <Typo>Error loading properties</Typo>;
+  // list properties available nearby using the stack query api call
+
+  const handleSearch = (text: string) => {
+    setSearch(text);
+    if (!text) {
+      setFiltered(data);
+      return;
+    }
+    const lower = text.toLowerCase();
+    setFiltered(
+      data?.filter(
+        (property: any) =>
+          property.title.toLowerCase().includes(lower) ||
+          property.location?.address?.toLowerCase().includes(lower) ||
+          property.location?.city?.toLowerCase().includes(lower) ||
+          property.location?.state?.toLowerCase().includes(lower)
+      ) || []
+    );
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+    <ScreenWrapper>
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={{ gap: 4 }}>
+            <Typo size={16} color={colors.neutral400}>Hello,</Typo>
+            <Typo size={20} fontWeight={'500'}>{profile?.name}</Typo>
+          </View>
+
+          <TouchableOpacity style={styles.searchIcon} onPress={() => setSearchFlag(!searchFlag)}>
+            <Icons.MagnifyingGlass
+              size={verticalScale(22)}
+              color={colors.neutral200}
+              weight='bold'
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Search Input */}
+        <View style={{ marginBottom: 12 }}>
+          {searchFlag && (
+            <View
+              style={{
+                backgroundColor: colors.neutral700,
+                borderRadius: 8,
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingHorizontal: 12,
+                height: 44,
+              }}
+            >
+              <Icons.MagnifyingGlass size={20} color={colors.neutral400} />
+              <TextInput
+                value={search}
+                onChangeText={handleSearch}
+                placeholder="Search properties..."
+                placeholderTextColor={colors.neutral400}
+                style={{
+                  flex: 1,
+                  backgroundColor: 'transparent',
+                  color: colors.neutral100,
+                  marginLeft: 8,
+                  fontSize: 16,
+                }}
+              />
+            </View>
+          )}
+        </View>
+
+        <ScrollView
+          contentContainerStyle={styles.scrollViewStyle}
+          showsVerticalScrollIndicator={false}
+        >
+          {filtered?.map((property: any) => (
+            <PropertyCard key={property?.id} property={property} />
+          ))}
+        </ScrollView>
+
+      </View>
+    </ScreenWrapper>
+  )
 }
 
+export default Home
+
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    paddingHorizontal: spacingX._20,
+    marginTop: verticalScale(8),
+  },
+  header: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 8,
+    marginBottom: spacingY._10,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  searchIcon: {
+    backgroundColor: colors.neutral700,
+    padding: spacingX._10,
+    borderRadius: 50,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
+  floatingButton: {
+    height: verticalScale(50),
+    width: verticalScale(50),
+    borderRadius: 100,
     position: 'absolute',
+    bottom: verticalScale(30),
+    right: verticalScale(30),
   },
-});
+  scrollViewStyle: {
+    marginTop: spacingY._10,
+    paddingBottom: verticalScale(100),
+    gap: spacingY._25
+  }
+})

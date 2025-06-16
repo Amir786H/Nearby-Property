@@ -35,16 +35,38 @@ npm run reset-project
 
 This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
-## Learn more
+## Important Note
 
-To learn more about developing your project with Expo, look at the following resources:
+After every changes done natively we have to run the following command:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npx expo start -c
+```
+For bundle cache clearing
 
-## Join the community
+To run the json server locally for the app data to fetch and show inside the app
+```bash
+npx json-server db.json
+```
 
-Join our community of developers creating universal apps.
+## Developement build creation using EAS
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+For local development build I have used EAS.
+We have to sign-in inside the Expo account and configure the 
+EAS for our project following the Expo official documentation.
+Follow all the steps as provided inside the documentation
+
+https://docs.expo.dev/tutorial/eas/configure-development-build/
+
+You have to install the expo-dev-client using the command:
+```bash
+npx expo install expo-dev-client
+```
+
+Then using the following command create a development build:
+```bash
+eas build --platform android --profile development
+```
+
+You will get the build created inside the Expo Dashboard overview section
+From there you can download the build or share with the QA members.
