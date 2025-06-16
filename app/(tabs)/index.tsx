@@ -2,16 +2,16 @@ import Loading from '@/components/Loading';
 import PropertyCard from '@/components/PropertyCard';
 import ScreenWrapper from '@/components/ScreenWrapper';
 import Typo from '@/components/Typo';
-import { colors, spacingX, spacingY } from '@/constants/theme';
+import { colors, spacingY } from '@/constants/theme';
 import { useProfile, useProperties } from '@/hooks/useProperties'; // adjust path as needed
 import { verticalScale } from '@/utils/styling';
 import * as Icons from 'phosphor-react-native';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, TextInput, TouchableOpacity, View } from 'react-native';
 
 const Home = () => {
   const { data, isLoading, error } = useProperties();
-  const { data: profile} = useProfile();
+  const { data: profile } = useProfile();
 
   const [search, setSearch] = useState('');
   const [searchFlag, setSearchFlag] = useState(false);
@@ -45,15 +45,17 @@ const Home = () => {
 
   return (
     <ScreenWrapper>
-      <View style={styles.container}>
+      <View className="flex-1 px-5 mt-2">
         {/* Header */}
-        <View style={styles.header}>
-          <View style={{ gap: 4 }}>
+        <View className="flex-row justify-between items-center mb-4">
+          <View className="gap-1">
             <Typo size={16} color={colors.neutral400}>Hello,</Typo>
             <Typo size={20} fontWeight={'500'}>{profile?.name}</Typo>
           </View>
-
-          <TouchableOpacity style={styles.searchIcon} onPress={() => setSearchFlag(!searchFlag)}>
+          <TouchableOpacity
+            className="bg-zinc-700 p-2.5 rounded-full"
+            onPress={() => setSearchFlag(!searchFlag)}
+          >
             <Icons.MagnifyingGlass
               size={verticalScale(22)}
               color={colors.neutral200}
@@ -63,80 +65,36 @@ const Home = () => {
         </View>
 
         {/* Search Input */}
-        <View style={{ marginBottom: 12 }}>
+        <View className="mb-3">
           {searchFlag && (
-            <View
-              style={{
-                backgroundColor: colors.neutral700,
-                borderRadius: 8,
-                flexDirection: 'row',
-                alignItems: 'center',
-                paddingHorizontal: 12,
-                height: 44,
-              }}
-            >
+            <View className="bg-zinc-700 rounded flex-row items-center px-3 h-11">
               <Icons.MagnifyingGlass size={20} color={colors.neutral400} />
               <TextInput
                 value={search}
                 onChangeText={handleSearch}
                 placeholder="Search properties..."
                 placeholderTextColor={colors.neutral400}
-                style={{
-                  flex: 1,
-                  backgroundColor: 'transparent',
-                  color: colors.neutral100,
-                  marginLeft: 8,
-                  fontSize: 16,
-                }}
+                className="flex-1 bg-transparent text-zinc-100 ml-2 text-base"
               />
             </View>
           )}
         </View>
 
         <ScrollView
-          contentContainerStyle={styles.scrollViewStyle}
+          contentContainerStyle={{
+            marginTop: spacingY._10,
+            paddingBottom: verticalScale(100),
+            gap: spacingY._25,
+          }}
           showsVerticalScrollIndicator={false}
         >
           {filtered?.map((property: any) => (
             <PropertyCard key={property?.id} property={property} />
           ))}
         </ScrollView>
-
       </View>
     </ScreenWrapper>
   )
 }
 
 export default Home
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: spacingX._20,
-    marginTop: verticalScale(8),
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacingY._10,
-  },
-  searchIcon: {
-    backgroundColor: colors.neutral700,
-    padding: spacingX._10,
-    borderRadius: 50,
-  },
-  floatingButton: {
-    height: verticalScale(50),
-    width: verticalScale(50),
-    borderRadius: 100,
-    position: 'absolute',
-    bottom: verticalScale(30),
-    right: verticalScale(30),
-  },
-  scrollViewStyle: {
-    marginTop: spacingY._10,
-    paddingBottom: verticalScale(100),
-    gap: spacingY._25
-  }
-})
