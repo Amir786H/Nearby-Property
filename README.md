@@ -70,3 +70,8 @@ eas build --platform android --profile development
 
 You will get the build created inside the Expo Dashboard overview section
 From there you can download the build or share with the QA members.
+
+## FOR REVIEWER
+
+I have used both React Native StyleSheet and Nativewind for the UI
+changes of the component.In some components you will find only StyleSheet or Nativewind.
